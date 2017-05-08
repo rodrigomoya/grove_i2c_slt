@@ -53,6 +53,6 @@ class GroveSLT
     	I2C_T *i2c;
 
     uint8_t _i2caddr;
-    float temperature, light, soil, reader;
+    float temperature, light, soil, reader, error;
 };
 #endif

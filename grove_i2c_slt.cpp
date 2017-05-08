@@ -34,10 +34,6 @@ GroveSLT::GroveSLT(int pinsda, int pinscl) {
   suli_i2c_init(i2c, pinsda, pinscl);  
   Wire.begin();
 
-  Wire.beginTransmission(0x20);
-  Wire.write(6);
-  Wire.endTransmission();
-
   delay(500);
 }
 
@@ -45,12 +41,17 @@ GroveSLT::GroveSLT(int pinsda, int pinscl) {
 bool GroveSLT::read_temperature(float *temperature)
 {
   Wire.beginTransmission(0x20);
-  Wire.write(0x05);
-  Wire.endTransmission();
+  Wire.write(5);
+  error = Wire.endTransmission();
   delay(300);
 
   Wire.requestFrom(0x20, 2);
-  unsigned int reader = reader | Wire.read();
+  if(Wire.available()>=2){
+    reader = Wire.read()<<8;
+    reader += Wire.read();
+  } else {
+    reader = error;
+  }
 
   *temperature = reader;
   return true;
@@ -59,13 +60,24 @@ bool GroveSLT::read_temperature(float *temperature)
 /* read_light */
 bool GroveSLT::read_light(float *light)
 {
+
   Wire.beginTransmission(0x20);
-  Wire.write(0x04);
+  Wire.write(3);
   Wire.endTransmission();
-  delay(300);
+  delay(500);
+
+  Wire.beginTransmission(0x20);
+  Wire.write(4);
+  error = Wire.endTransmission();
+  delay(500);
 
   Wire.requestFrom(0x20, 2);
-  unsigned int reader = Wire.read() << 8;
+  if(Wire.available()>=2){
+    reader = Wire.read()<<8;
+    reader += Wire.read();
+  } else {
+    reader = error;
+  }
 
   *light = reader;
   return true;
@@ -74,13 +86,19 @@ bool GroveSLT::read_light(float *light)
 /* read_soil */
 bool GroveSLT::read_soil(float *soil)
 {
+
   Wire.beginTransmission(0x20);
-  Wire.write(0x00);
-  Wire.endTransmission();
-  delay(300);
+  Wire.write(0);
+  error = Wire.endTransmission();
+  delay(500);
 
   Wire.requestFrom(0x20, 2);
-  unsigned int reader = Wire.read() << 8;
+  if(Wire.available()>=2){
+    reader = Wire.read()<<8;
+    reader += Wire.read();
+  } else {
+    reader = error;
+  }
 
   *soil = reader;
   return true;
