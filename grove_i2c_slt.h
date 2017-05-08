@@ -1,8 +1,8 @@
 /*
- * grove_sht31.h
+ * grove_i2c_slt.h
  *
- * Copyright (c) 2016 rizoma.io
- * Website    : www.seeed.cc
+ * Copyright (c) 2017 rizoma.io
+ * Website    : www.rizoma.io
  * Author     : Rodrigo Moya
  *
  * The MIT License (MIT)
@@ -32,83 +32,27 @@
 
 #include "suli2.h"
 
-//GROVE_NAME        "Grove - SHT31"
-//SKU               10102011239631235123
+//GROVE_NAME        "Grove - SLT - Single"
+//SKU               1010123321631235123
 //IF_TYPE           I2C
-//IMAGE_URL         http://bz.seeedstudio.com/depot/bmz_cache/c/c326ed0a4c729308111af05165ae3afd.image.530x397.jpg
-//DESCRIPTION       "Driver for SHT31 de SeeedStudio"
+//IMAGE_URL         https://d3s5r33r268y59.cloudfront.net/4974/products/thumbs/2015-10-26T14:22:55.624Z-DSC01306.JPG.2560x2560_q85.jpg
+//DESCRIPTION       "Driver for SLT de Tindie"
 //WIKI_URL          http://www.rizoma.io
-//ADDED_AT          "2016-08-30"
+//ADDED_AT          "2017-05-05"
 //AUTHOR            "Rodrigo Moya Toro - rodrigo@rizoma.io"
 
-
-#define SHT31_ADDR    0x44
-#define SHT31_MEAS_HIGHREP_STRETCH 0x2C06
-#define SHT31_MEAS_MEDREP_STRETCH  0x2C0D
-#define SHT31_MEAS_LOWREP_STRETCH  0x2C10
-#define SHT31_MEAS_HIGHREP         0x2400
-#define SHT31_MEAS_MEDREP          0x240B
-#define SHT31_MEAS_LOWREP          0x2416
-#define SHT31_READSTATUS           0xF32D
-#define SHT31_CLEARSTATUS          0x3041
-#define SHT31_SOFTRESET            0x30A2
-#define SHT31_HEATEREN             0x306D
-#define SHT31_HEATERDIS            0x3066
-
-class GroveSHT31
+class GroveSLT
 {
-
 	public:
-		GroveSHT31(int pinsda, int pinscl);;    
-		boolean begin(uint8_t i2caddr = SHT31_ADDR);
+		GroveSLT(int pinsda, int pinscl);;    
 		bool read_temperature(float *temperature);
-		bool read_humidity(float *humidity);
-		bool read_grain_humidity(float *humidity, float *temperature);
-		uint16_t readStatus(void);
-		void reset(void);
-		void heater(boolean);
-		uint8_t crc8(const uint8_t *data, int len);
+		bool read_light(float *light);
+		bool read_soil(float *soil);
 
 	private:
     	I2C_T *i2c;
-    	boolean getTempHum(void);
-    	void writeCommand(uint16_t cmd);
 
     uint8_t _i2caddr;
-    float humi, temp;
+    float temperature, light, soil, reader;
 };
 #endif
-
-// #include <Wire.h>
-
-// void writeI2CRegister8bit(int addr, int value) {
-//   Wire.beginTransmission(addr);
-//   Wire.write(value);
-//   Wire.endTransmission();
-// }
-
-// unsigned int readI2CRegister16bit(int addr, int reg) {
-//   Wire.beginTransmission(addr);
-//   Wire.write(reg);
-//   Wire.endTransmission();
-//   delay(20);
-//   Wire.requestFrom(addr, 2);
-//   unsigned int t = Wire.read() << 8;
-//   t = t | Wire.read();
-//   return t;
-// }
-
-// void setup() {
-//   Wire.begin();
-//   Serial.begin(9600);
-//   writeI2CRegister8bit(0x20, 6); //reset
-// }
-
-// void loop() {
-//   Serial.print(readI2CRegister16bit(0x20, 0)); //read capacitance register
-//   Serial.print(", ");
-//   Serial.print(readI2CRegister16bit(0x20, 5)); //temperature register
-//   Serial.print(", ");
-//   writeI2CRegister8bit(0x20, 3); //request light measurement 
-//   Serial.println(readI2CRegister16bit(0x20, 4)); //read light register
-// }
