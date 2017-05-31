@@ -27,13 +27,13 @@
  */
 
 
-#ifndef __GROVE_SHT31_H__
-#define __GROVE_SHT31_H__
+#ifndef __GROVE_SLT_H__
+#define __GROVE_SLT_H__
 
 #include "suli2.h"
 
 //GROVE_NAME        "Grove - SLT - Single"
-//SKU               1010123321631235123
+//SKU               10101233216312351SDS23ASDASDASDASD
 //IF_TYPE           I2C
 //IMAGE_URL         https://d3s5r33r268y59.cloudfront.net/4974/products/thumbs/2015-10-26T14:22:55.624Z-DSC01306.JPG.2560x2560_q85.jpg
 //DESCRIPTION       "Driver for SLT de Tindie"
@@ -44,15 +44,50 @@
 class GroveSLT
 {
 	public:
-		GroveSLT(int pinsda, int pinscl);;    
-		bool read_temperature(float *temperature);
-		bool read_light(float *light);
-		bool read_soil(float *soil);
+		GroveSLT(int pinsda, int pinscl);
+
+		/**
+		 * Change address of Sensor
+		 * 
+		 * @param nindex - Nuevo Indice(0--9) 
+		 * @param aindex - Actual Indice (0--9)
+		 * 
+		 * @return bool 
+		 */		
+		bool read_address(int nindex, int aindex, int *newaddress);
+		
+		/**
+		 * ReadTemperature
+		 * 
+		 * @param index - Indice, por defecto es cero = 0x20 
+		 * 
+		 * @return bool 
+		 */	
+		bool read_temperature(int index, float *temperature);
+		
+		/**
+		 * ReadLight
+		 * 
+		 * @param index - Indice, por defecto es cero = 0x20 
+		 * 
+		 * @return bool 
+		 */			
+		bool read_light(int index, float *light);
+
+		/**
+		 * SoilLight
+		 * 
+		 * @param index - Indice, por defecto es cero = 0x20 
+		 * 
+		 * @return bool 
+		 */		
+		bool read_soil(int index, float *soil);	
 
 	private:
     	I2C_T *i2c;
-
+		int get_address(int nindex);
     uint8_t _i2caddr;
     float temperature, light, soil, reader, error;
+    int naddr, aaddr, addr;
 };
 #endif
