@@ -54,7 +54,7 @@ bool GroveSLT::read_temperature(int index, float *temperature)
     reader = error;
   }
 
-  *temperature = reader;
+  *temperature = reader/(float)10;
   return true;
 }
 
@@ -81,6 +81,8 @@ bool GroveSLT::read_light(int index, float *light)
   }
 
   *light = reader;
+  delay(1500);
+
   return true;
 }
 
