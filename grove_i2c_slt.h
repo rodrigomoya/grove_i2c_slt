@@ -41,6 +41,20 @@
 //ADDED_AT          "2017-05-05"
 //AUTHOR            "Rodrigo Moya Toro - rodrigo@rizoma.io"
 
+
+#define SHT31_ADDR    0x44
+#define SHT31_MEAS_HIGHREP_STRETCH 0x2C06
+#define SHT31_MEAS_MEDREP_STRETCH  0x2C0D
+#define SHT31_MEAS_LOWREP_STRETCH  0x2C10
+#define SHT31_MEAS_HIGHREP         0x2400
+#define SHT31_MEAS_MEDREP          0x240B
+#define SHT31_MEAS_LOWREP          0x2416
+#define SHT31_READSTATUS           0xF32D
+#define SHT31_CLEARSTATUS          0x3041
+#define SHT31_SOFTRESET            0x30A2
+#define SHT31_HEATEREN             0x306D
+#define SHT31_HEATERDIS            0x3066
+
 class GroveSLT
 {
 	public:
@@ -81,13 +95,24 @@ class GroveSLT
 		 * 
 		 * @return bool 
 		 */		
-		bool read_soil(int index, float *soil);	
+		bool read_soil(int index, float *soil);
+	    bool read_temperature_sht(float *temperature);
+	    bool read_humidity_sht(float *humidity);
+	    void reset_sht(void);
+	    void heater_sht(boolean);
+	    uint8_t crc8_sht(const uint8_t *data, int len);
 
 	private:
     	I2C_T *i2c;
-		int get_address(int nindex);
-    uint8_t _i2caddr;
+	    boolean getTempHum_sht(void);
+	    void writeCommand_sht(uint16_t cmd);
+	    int get_address(int nindex);
+
     float temperature, light, soil, reader, error;
     int naddr, aaddr, addr;
+
+    // sht31
+    float humi, temp;
+
 };
 #endif

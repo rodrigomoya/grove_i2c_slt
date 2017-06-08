@@ -33,8 +33,7 @@ GroveSLT::GroveSLT(int pinsda, int pinscl) {
   this->i2c = (I2C_T *)malloc(sizeof(I2C_T));
   suli_i2c_init(i2c, pinsda, pinscl);  
   Wire.begin();
-
-  delay(500);
+  delay(3000);
 }
 
 /* read_temperature */
@@ -137,7 +136,6 @@ bool GroveSLT::read_address(int nindex, int aindex, int *newaddress)
 /* get_address */
 int GroveSLT::get_address(int nindex)
 {
-
   switch (nindex) {
     case 0:
       naddr = 0x20;
@@ -158,5 +156,89 @@ int GroveSLT::get_address(int nindex)
       naddr = 0x20;
   }
   return naddr;
+}
 
+// SHT31 - codigo 
+bool GroveSLT::read_temperature_sht(float *temperature) {
+  if (! getTempHum_sht()) return NAN;
+  *temperature = temp;
+  return true;  
+}
+
+bool GroveSLT::read_humidity_sht(float *humidity) {  
+  if (! getTempHum_sht() ) return NAN;
+  *humidity = humi;
+  return true;  
+}
+
+void GroveSLT::reset_sht(void) {
+  writeCommand_sht(SHT31_SOFTRESET);
+  delay(500);
+}
+
+void GroveSLT::heater_sht(boolean h) {
+  if (h)
+    writeCommand_sht(SHT31_HEATEREN);
+  else
+    writeCommand_sht(SHT31_HEATERDIS);
+}
+
+uint8_t GroveSLT::crc8_sht(const uint8_t *data, int len) {
+  const uint8_t POLYNOMIAL(0x31);
+  uint8_t crc(0xFF);
+  
+  for ( int j = len; j; --j ) {
+    crc ^= *data++;
+    for ( int i = 8; i; --i ) {
+      crc = ( crc & 0x80 )
+      ? (crc << 1) ^ POLYNOMIAL
+      : (crc << 1);
+    }
+  }
+  return crc; 
+}
+
+boolean GroveSLT::getTempHum_sht(void) {
+  uint8_t readbuffer[6];
+  writeCommand_sht(SHT31_MEAS_HIGHREP);
+  
+  delay(500);
+  Wire.requestFrom(SHT31_ADDR, (uint8_t)6);
+  if (Wire.available() != 6) 
+    return false;
+  for (uint8_t i=0; i<6; i++) {
+    readbuffer[i] = Wire.read();
+  }
+  uint16_t ST, SRH;
+  ST = readbuffer[0];
+  ST <<= 8;
+  ST |= readbuffer[1];
+
+  if (readbuffer[2] != crc8_sht(readbuffer, 2)) return false;
+
+  SRH = readbuffer[3];
+  SRH <<= 8;
+  SRH |= readbuffer[4];
+
+  if (readbuffer[5] != crc8_sht(readbuffer+3, 2)) return false;
+ 
+  double stemp = ST;
+  stemp *= 175;
+  stemp /= 0xffff;
+  stemp = -45 + stemp;
+  temp = stemp;
+  
+  double shum = SRH;
+  shum *= 100;
+  shum /= 0xFFFF;
+  
+  humi = shum;
+  return true;
+}
+
+void GroveSLT::writeCommand_sht(uint16_t cmd) {
+  Wire.beginTransmission(SHT31_ADDR);
+  Wire.write(cmd >> 8);
+  Wire.write(cmd & 0xFF);
+  Wire.endTransmission();      
 }
